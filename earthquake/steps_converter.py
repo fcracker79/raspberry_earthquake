@@ -36,6 +36,8 @@ class StepperStepsConverter(StepsConverter):
             time_delta = item.time_slice - (previous_item.time_slice if previous_item else 0)
             if not time_delta:
                 continue
+            if time_delta < self._step_time:
+                continue
             steps = int(time_delta / self._step_time)
             for step in range(steps):
                 cur_position += \
