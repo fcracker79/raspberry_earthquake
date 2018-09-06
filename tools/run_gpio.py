@@ -7,7 +7,7 @@ from earthquake.engines import gpio
 _SLEEP_TIME = 0.1
 _STEP_TIME = 0.1
 _SCALE_FACTOR = 1 / 50.0
-_RADIUS = 0.003
+_RADIUS = 0.02
 _PIN = 7
 
 _ROOT = os.path.join(os.path.dirname(earthquake.__file__), '..', 'data')
