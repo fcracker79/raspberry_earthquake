@@ -1,6 +1,5 @@
 import os
 import sys
-
 import earthquake
 from earthquake import steps_converter_factory, reader, eq_runner
 from earthquake.engines import gpio
@@ -10,10 +9,13 @@ _STEP_TIME = 0.1
 _SCALE_FACTOR = 1 / 50.0
 _RADIUS = 0.003
 _PIN = 7
-_FILENAMES = os.listdir(os.path.join(os.path.dirname(earthquake.__file__), '..', 'data'))
 
+_ROOT = os.path.join(os.path.dirname(earthquake.__file__), '..', 'data')
+_FILENAMES = [os.path.join(_ROOT, x) for x in os.listdir(_ROOT)]
+
+print(_FILENAMES)
 if __name__ == '__main__':
-    if len(sys.argv != 2):
+    if len(sys.argv) != 2:
         print(
             'Usage: {} step\nwith step:\n{}'.format(
                 sys.argv[0],
