@@ -87,9 +87,9 @@ class USBDetector:
             self.monitor.start()
             all_devices = set()
             for device in iter(self.monitor.poll, None):
-                if device.action not in ('bind', 'unbind'):
+                if device.action not in ('add', 'remove'):
                     continue
-                add = device.action == 'bind'
+                add = device.action == 'add'
                 while device.parent:
                     device = device.parent
                 if add and device.sys_path not in all_devices:
