@@ -18,7 +18,7 @@ class USBDetector:
     _SLEEP_TIME = 0.1
     _STEP_TIME = 0.1
     _SCALE_FACTOR = 1 / 50.0
-    _RADIUS = 0.02
+    _RADIUS = 0.01
     _PIN = 7
 
     def __init__(self):
