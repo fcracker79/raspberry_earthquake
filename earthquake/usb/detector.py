@@ -62,11 +62,10 @@ class USBDetector:
         self._current_thread.start()
 
     def stop_engine(self):
-        self._play_text('Stopping engine')
         self._stopped = True
         if not self._current_thread:
             return
-
+        self._play_text('Stopping engine')
         while self._current_thread.is_alive():
             print('Waiting for thread to die')
             time.sleep(2)
