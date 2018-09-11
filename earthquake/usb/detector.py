@@ -32,7 +32,10 @@ class USBDetector:
 
     @retrying.retry(wait_fixed=2000)
     def _get_new_initial_partitions(self, old_partitions: typing.List[str]) -> typing.List[str]:
-        initial_partitions = [p.mountpoint for p in psutil.disk_partitions() if p.fstype == 'vfat']
+        initial_partitions = [
+            p.mountpoint for p in psutil.disk_partitions()
+            if p.fstype == 'vfat' and p.mountpoint not in ('/', '/boot')
+        ]
         if not initial_partitions:
             raise Exception
         return initial_partitions
@@ -101,7 +104,10 @@ class USBDetector:
                     self.stop_engine()
                     self._play_text('Device removed')
                     all_devices.remove(device.sys_path)
-                    initial_partitions = [p.mountpoint for p in psutil.disk_partitions() if p.fstype == 'vfat']
+                    initial_partitions = [
+                        p.mountpoint for p in psutil.disk_partitions()
+                        if p.fstype == 'vfat' and p.mountpoint not in ('/', '/boot')
+                    ]
                 else:
                     print('Nothing to do')
                     continue
