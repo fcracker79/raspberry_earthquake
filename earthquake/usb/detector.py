@@ -41,7 +41,7 @@ class USBDetector:
         self._pause = False
         self._controller = controller
         self._init_controller_listeners()
-    
+
     def _reset_buttons(self):
         self._backward = self._forward = self._pause = False
 
@@ -195,6 +195,7 @@ class USBDetector:
                 if initial_partitions:
                     self._play_text('Reading files from USB')
                     files = [os.path.join(initial_partitions[0], x) for x in os.listdir(initial_partitions[0])]
+                    self._reset_buttons()
                     for i, file in enumerate(files):
                         self._play_text('File {}: {}'.format(i + 1, os.path.basename(file)))
                     self.start_engine(files)
