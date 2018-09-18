@@ -55,7 +55,7 @@ class GamepadEarthquakeController(EarthquakeController):
                 fun()
         self._controller.add_listener(Button.THUMB, _f)
 
-    def set_on_back_pressed(self, fun: EarthquakeCallback):
+    def set_on_backward_pressed(self, fun: EarthquakeCallback):
         def _f(old_value, new_value):
             if old_value == 0 and new_value == 127:
                 fun()

@@ -11,7 +11,7 @@ class EarthquakeController(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def set_on_back_pressed(self, fun: EarthquakeCallback):
+    def set_on_backward_pressed(self, fun: EarthquakeCallback):
         pass
 
     @abc.abstractmethod

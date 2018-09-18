@@ -2,15 +2,25 @@ import os
 import threading
 import time
 import typing
+
 import psutil
 import pyttsx3
 import pyudev
 import retrying
 
 from earthquake import eq_runner, reader, steps_converter_factory
+from earthquake.controllers import EarthquakeController
 
 
 class StopException(Exception):
+    pass
+
+
+class BackwardException(Exception):
+    pass
+
+
+class ForwardException(Exception):
     pass
 
 
@@ -21,14 +31,58 @@ class USBDetector:
     _RADIUS = 0.01
     _PIN = 7
 
-    def __init__(self):
+    def __init__(self, controller: EarthquakeController):
         self._current_thread = None  # type: typing.Optional[threading.Thread]
+        self._buttons_thread = None  # type: typing.Optional[threading.Thread]
         self._stopped = True
         self._speech_engine = pyttsx3.init()
+        self._backward = False
+        self._forward = False
+        self._pause = False
+        self._controller = controller
+
+    def _reset_buttons(self):
+        self._backward = self._forward = self._pause = False
+
+    def _init_controller_listeners(self):
+        def _shutdown():
+            from subprocess import call
+            call(['shutdown', '-h', 'now'])
+
+        def _pause():
+            self._pause = not self._pause
+
+        def _forward():
+            self._forward = True
+
+        def _backward():
+            self._backward = True
+
+        self._controller.set_on_shutdown_pressed(_shutdown)
+        self._controller.set_on_pause_pressed(_pause)
+        self._controller.set_on_forward_pressed(_forward)
+        self._controller.set_on_backward_pressed(_backward)
 
     def _tick_function(self):
         if self._stopped:
             raise StopException
+
+        paused = False
+        while self._pause:
+            paused = True
+            self._play_text('Paused')
+            time.sleep(1)
+        if paused:
+            self._play_text('Resumed')
+
+        if self._forward:
+            self._play_text('Next file')
+            self._reset_buttons()
+            raise ForwardException
+        if self._backward:
+            self._play_text('Previous file')
+            self._reset_buttons()
+            raise BackwardException
 
     @retrying.retry(wait_fixed=2000)
     def _get_new_initial_partitions(self, old_partitions: typing.List[str]) -> typing.List[str]:
@@ -46,23 +100,42 @@ class USBDetector:
 
         def _f():
             from earthquake.engines import gpio
-            for filename in filenames:
+
+            i = 0
+            while True:
+                filename = filenames[i]
                 if self._stopped:
                     break
                 self._play_text('Playing file {}'.format(filename))
-                eq_runner.run(
-                    reader.TabbedFileEarthquakeReader(filename, 2),
-                    steps_converter_factory.create_for_step_motor(
-                        self._STEP_TIME, self._SCALE_FACTOR, self._RADIUS
-                    ),
-                    gpio.GPIOEngine(self._PIN),
-                    self._SLEEP_TIME,
-                    self._tick_function
-                )
+                try:
+                    eq_runner.run(
+                        reader.TabbedFileEarthquakeReader(filename, 2),
+                        steps_converter_factory.create_for_step_motor(
+                            self._STEP_TIME, self._SCALE_FACTOR, self._RADIUS
+                        ),
+                        gpio.GPIOEngine(self._PIN),
+                        self._SLEEP_TIME,
+                        self._tick_function
+                    )
+                except ForwardException:
+                    i += 1
+                    if i >= len(filenames):
+                        i = 0
+                except BackwardException:
+                    i -= 1
+                    if i < 0:
+                        i = len(filenames) - 1
+                else:
+                    i += 1
+                    if i >= len(filenames):
+                        i = 0
         self._current_thread = threading.Thread(target=_f)
         self._current_thread.daemon = True
         self._stopped = False
         self._current_thread.start()
+        self._buttons_thread = threading.Thread(target=self._controller.start)
+        self._buttons_thread.daemon = True
+        self._buttons_thread.start()
 
     def stop_engine(self):
         self._stopped = True
@@ -118,8 +191,3 @@ class USBDetector:
                     for i, file in enumerate(files):
                         self._play_text('File {}: {}'.format(i + 1, os.path.basename(file)))
                     self.start_engine(files)
-
-d = USBDetector()
-# d.on_created.append(lambda x: print('+ {}: {}'.format(type(x), x)))
-# d.on_deleted.append(lambda x: print('- {}: {}'.format(type(x), x)))
-d()
