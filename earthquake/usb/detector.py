@@ -46,16 +46,21 @@ class USBDetector:
 
     def _init_controller_listeners(self):
         def _shutdown():
+            print('Shutdown')
+            self._play_text('Shutting down. Bye bye!')
             from subprocess import call
             call(['shutdown', '-h', 'now'])
 
         def _pause():
+            print('Pause')
             self._pause = not self._pause
 
         def _forward():
+            print('Forward')
             self._forward = True
 
         def _backward():
+            print('Backward')
             self._backward = True
 
         self._controller.set_on_shutdown_pressed(_shutdown)
