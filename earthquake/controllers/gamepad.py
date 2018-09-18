@@ -1,4 +1,5 @@
 import enum
+import traceback
 import typing
 
 from inputs import get_gamepad
@@ -75,7 +76,12 @@ class GamepadEarthquakeController(EarthquakeController):
         self._controller.add_listener(Button.THUMB2, _f)
 
     def start(self):
-        self._controller.start()
+        while True:
+            try:
+                self._controller.start()
+            except Exception:
+                traceback.print_exc()
+
 
 
 # g = GamepadEarthquakeController(GamepadController())
