@@ -40,7 +40,8 @@ class USBDetector:
         self._forward = False
         self._pause = False
         self._controller = controller
-
+        self._init_controller_listeners()
+    
     def _reset_buttons(self):
         self._backward = self._forward = self._pause = False
 
@@ -158,7 +159,7 @@ class USBDetector:
         self._buttons_thread = threading.Thread(target=self._controller.start)
         self._buttons_thread.daemon = True
         self._buttons_thread.start()
-        
+
         self._play_text('Hi there!')
         initial_partitions = []
         while not initial_partitions:
