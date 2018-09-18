@@ -41,6 +41,7 @@ class USBDetector:
         self._pause = False
         self._controller = controller
         self._init_controller_listeners()
+        self._lock = threading.RLock()
 
     def _reset_buttons(self):
         self._backward = self._forward = self._pause = False
@@ -151,9 +152,10 @@ class USBDetector:
         self._current_thread.join()
 
     def _play_text(self, text: str):
-        print(text)
-        self._speech_engine.say(text)
-        self._speech_engine.runAndWait()
+        with self._lock:
+            print(text)
+            self._speech_engine.say(text)
+            self._speech_engine.runAndWait()
 
     def __call__(self, *args, **kwargs):
         self._buttons_thread = threading.Thread(target=self._controller.start)
