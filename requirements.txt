@@ -1,3 +1,4 @@
+inputs==0.4
 psutil==5.4.7
 pyttsx3==2.7
 pyudev==0.21.0
