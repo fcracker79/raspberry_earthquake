@@ -102,7 +102,6 @@ class USBDetector:
         return initial_partitions
 
     def start_engine(self, filenames: typing.List[str]):
-        self._play_text('Playing {}'.format([os.path.basename(x) for x in filenames]))
         self.stop_engine()
 
         def _f():
