@@ -138,9 +138,6 @@ class USBDetector:
         self._current_thread.daemon = True
         self._stopped = False
         self._current_thread.start()
-        self._buttons_thread = threading.Thread(target=self._controller.start)
-        self._buttons_thread.daemon = True
-        self._buttons_thread.start()
 
     def stop_engine(self):
         self._stopped = True
@@ -158,6 +155,10 @@ class USBDetector:
         self._speech_engine.runAndWait()
 
     def __call__(self, *args, **kwargs):
+        self._buttons_thread = threading.Thread(target=self._controller.start)
+        self._buttons_thread.daemon = True
+        self._buttons_thread.start()
+        
         self._play_text('Hi there!')
         initial_partitions = []
         while not initial_partitions:
