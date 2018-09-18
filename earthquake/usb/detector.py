@@ -75,7 +75,7 @@ class USBDetector:
 
         paused = False
         while self._pause:
-            paused and self._play_text('Paused')
+            not paused and self._play_text('Paused')
             paused = True
             time.sleep(1)
         if paused:
