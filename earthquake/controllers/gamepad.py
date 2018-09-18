@@ -30,6 +30,7 @@ class GamepadController:
         self._listeners[button].append(fun)
 
     def start(self):
+        print('Started gamepad controller')
         while True:
             for event in get_gamepad():
                 # print('Event type', event.ev_type, 'Code', event.code, 'State', event.state)
